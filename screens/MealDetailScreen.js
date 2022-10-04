@@ -1,28 +1,43 @@
-import { useLayoutEffect } from "react";
+import { useContext, useLayoutEffect } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import IconButton from "../components/IconButton";
 import List from "../components/MealDetail/List";
 import Subtitle from "../components/MealDetail/Subtitle";
 import MealDetails from "../components/MealDetails";
 import { MEALS } from "../data/dummy-data";
+import { FavoritesContext } from "../store/context/favorites-context";
 
 const MealDetailScreen = ({ route, navigation }) => {
-    
+  const favoriteMealsCtx = useContext(FavoritesContext);
+
   const mealId = route.params.mealId;
 
   const seletedMeal = MEALS.find((meal) => meal.id === mealId);
 
-  const headerButtonHandler = () => {
-    console.log('headerButtonHandler Pressed!');
-  }
+  const mealIsFav = favoriteMealsCtx.ids.includes(mealId);
+
+  function udateFavhandler() {
+    // console.log("udateFavhandler Pressed!");
+    if(mealIsFav) {
+      favoriteMealsCtx.removeFavorite(mealId);
+    } else {
+      favoriteMealsCtx.addFavorite(mealId);
+    }
+  };
 
   useLayoutEffect(() => {
     navigation.setOptions({
-        headerRight: () => {
-            return <IconButton icon="star" color="white" title="Tap me!" onPress={headerButtonHandler} />
-        }
-    })
-  }, [])
+      headerRight: () => {
+        return (
+          <IconButton
+            icon={mealIsFav ? "star" : "star-outline"}
+            color="white"
+            onPress={udateFavhandler}
+          />
+        );
+      },
+    });
+  }, [navigation, udateFavhandler]);
 
   return (
     <ScrollView style={styles.rootCont}>
